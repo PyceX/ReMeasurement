@@ -44,7 +44,7 @@ document.getElementById('add-form').addEventListener('submit', (e) => {
     saveWells();
     renderCards();
     e.target.reset();
-    closeAddModal(); // Закрытие после сохранения
+    closeAddModal(); 
 });
 
 const renderCards = () => {
@@ -56,7 +56,6 @@ const renderCards = () => {
         const hasSecond = w.v2 !== '' && w.t2 !== '';
         
         const card = document.createElement('div');
-        // Обновлен дизайн карточек (p-4, уменьшены отступы, сетка для показаний)
         card.className = 'bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden flex flex-col gap-3';
         
         card.innerHTML = `
@@ -89,16 +88,24 @@ const renderCards = () => {
             ${hasSecond ? `
                 <div class="bg-blue-50 py-2 px-3 rounded-lg flex justify-between items-center border border-blue-100 mt-auto">
                     <span class="text-blue-600 text-xs font-bold uppercase tracking-wide">Дебит</span>
-                    <span class="text-2xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-sm' : 'text-blue-900'}">
-                        ${result} ${result !== 'Ошибка времени' ? '<span class="text-sm text-blue-600 font-medium ml-1">м³</span>' : ''}
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-sm' : 'text-blue-900'}">
+                            ${result} ${result !== 'Ошибка времени' ? '<span class="text-sm text-blue-600 font-medium ml-1">м³</span>' : ''}
+                        </span>
+                        ${result !== 'Ошибка времени' ? `
+                        <button onclick="copyResult('${w.id}', this)" class="text-gray-400 hover:text-blue-600 focus:outline-none transition-colors" title="Копировать">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                        </button>` : ''}
+                    </div>
                 </div>
             ` : `
                 <div class="border-t border-gray-100 pt-3 mt-auto">
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-2">
                             <input type="number" step="any" id="v2-${w.id}" placeholder="Показ. 2" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
-                            <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-xs outline-none focus:bg-white focus:ring-2 focus:ring-green-500">
+                            <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-xs outline-none focus:bg-white focus:ring-2 focus:ring-green-500 auto-time" onchange="this.classList.remove('auto-time')" oninput="this.classList.remove('auto-time')">
                         </div>
                         <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 text-sm font-medium transition-colors shadow-sm">Рассчитать</button>
                     </div>
@@ -106,6 +113,25 @@ const renderCards = () => {
             `}
         `;
         container.appendChild(card);
+    });
+};
+
+// Функция копирования в заданном формате
+window.copyResult = (id, btnElement) => {
+    const w = wells.find(w => w.id === id);
+    if (!w) return;
+    const result = calculateVolume(w.v1, w.t1, w.v2, w.t2);
+    if (result === 'Ошибка времени' || result === null) return;
+
+    const formatTime = (t) => t.replace('T', ' ');
+    const textToCopy = `${w.v1} (${formatTime(w.t1)}) - ${w.v2} (${formatTime(w.t2)}) = ${result} м³`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHTML = btnElement.innerHTML;
+        btnElement.innerHTML = '<span class="text-[10px] text-green-600 font-bold uppercase tracking-wide">Скопировано!</span>';
+        setTimeout(() => { btnElement.innerHTML = originalHTML; }, 2000);
+    }).catch(err => {
+        console.error('Ошибка копирования', err);
     });
 };
 
@@ -179,5 +205,13 @@ window.saveEdit = () => {
     renderCards();
     closeEditModal();
 };
+
+// Интервал для обновления текущего времени в нетронутых инпутах каждые 30 секунд
+setInterval(() => {
+    const currentDatetime = getLocalDatetime();
+    document.querySelectorAll('.auto-time').forEach(el => {
+        el.value = currentDatetime;
+    });
+}, 30000);
 
 renderCards();
