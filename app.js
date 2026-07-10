@@ -20,9 +20,18 @@ const calculateVolume = (v1, t1, v2, t2) => {
     return Math.round(result); 
 };
 
+// Слушатели для отключения автообновления при ручном вводе первого замера
+const time1Input = document.getElementById('time-1');
+if (time1Input) {
+    time1Input.addEventListener('focus', () => time1Input.classList.remove('auto-time'));
+    time1Input.addEventListener('input', () => time1Input.classList.remove('auto-time'));
+}
+
 // Управление модальным окном добавления
 window.openAddModal = () => {
-    document.getElementById('time-1').value = getLocalDatetime();
+    const time1 = document.getElementById('time-1');
+    time1.value = getLocalDatetime();
+    time1.classList.add('auto-time'); // Включаем автообновление при открытии
     document.getElementById('add-modal').classList.remove('hidden');
 };
 
@@ -105,7 +114,7 @@ const renderCards = () => {
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-2">
                             <input type="number" step="any" id="v2-${w.id}" placeholder="Показ. 2" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
-                            <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-xs outline-none focus:bg-white focus:ring-2 focus:ring-green-500 auto-time" onchange="this.classList.remove('auto-time')" oninput="this.classList.remove('auto-time')">
+                            <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-xs outline-none focus:bg-white focus:ring-2 focus:ring-green-500 auto-time" onfocus="this.classList.remove('auto-time')" oninput="this.classList.remove('auto-time')">
                         </div>
                         <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 text-sm font-medium transition-colors shadow-sm">Рассчитать</button>
                     </div>
@@ -116,7 +125,6 @@ const renderCards = () => {
     });
 };
 
-// Функция копирования в заданном формате
 window.copyResult = (id, btnElement) => {
     const w = wells.find(w => w.id === id);
     if (!w) return;
@@ -206,12 +214,12 @@ window.saveEdit = () => {
     closeEditModal();
 };
 
-// Интервал для обновления текущего времени в нетронутых инпутах каждые 30 секунд
+// Обновляем время каждые 10 секунд
 setInterval(() => {
     const currentDatetime = getLocalDatetime();
     document.querySelectorAll('.auto-time').forEach(el => {
         el.value = currentDatetime;
     });
-}, 30000);
+}, 10000);
 
 renderCards();
