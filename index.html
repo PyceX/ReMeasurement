@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет перезамеров</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6 text-gray-900">Перезамеры</h1>
+
+        <!-- Форма добавления -->
+        <div class="bg-white p-4 rounded shadow-sm mb-6">
+            <h2 class="text-lg font-semibold mb-4">Новая скважина</h2>
+            <form id="add-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="well-id" placeholder="Номер скважины" required class="border p-2 rounded focus:ring focus:ring-blue-200 outline-none">
+                <input type="number" step="any" id="val-1" placeholder="Показание 1 (A7)" required class="border p-2 rounded focus:ring focus:ring-blue-200 outline-none">
+                <input type="datetime-local" id="time-1" required class="border p-2 rounded focus:ring focus:ring-blue-200 outline-none">
+                <button type="submit" class="md:col-span-3 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 font-medium">Создать</button>
+            </form>
+        </div>
+
+        <!-- Контейнер карточек -->
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
