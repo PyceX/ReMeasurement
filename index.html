@@ -108,6 +108,49 @@
         </div>
     </div>
 
+    <!-- Модальное окно клонирования -->
+    <div id="clone-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold text-gray-900">Клон скв. <span id="clone-well-id" class="text-blue-600"></span></h3>
+                <button onclick="closeCloneModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+            <form id="clone-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Номер скважины</label>
+                    <input type="text" id="clone-well-number" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-2">Взять значение из</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                            <input type="radio" name="clone-source" value="1" onchange="updateCloneValue()" class="text-blue-600 focus:ring-blue-500">
+                            Показание 1
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                            <input type="radio" name="clone-source" value="2" id="clone-source-2" onchange="updateCloneValue()" class="text-blue-600 focus:ring-blue-500">
+                            Показание 2
+                        </label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Показание 1 (клон)</label>
+                        <input type="number" step="any" id="clone-v1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Время</label>
+                        <input type="datetime-local" id="clone-t1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm">
+                    </div>
+                </div>
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeCloneModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors text-sm">Отмена</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm text-sm">Клонировать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
