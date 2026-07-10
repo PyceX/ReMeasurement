@@ -16,11 +16,11 @@ const calculateVolume = (v1, t1, v2, t2) => {
     
     if (minutes <= 0) return 'Ошибка времени';
     
+    // Формула с округлением
     const result = (1440 / minutes) * (v2 - v1) / 1000;
-    return result.toFixed(2); // Округление до сотых
+    return Math.round(result); 
 };
 
-// Инициализация формы
 document.getElementById('time-1').value = getLocalDatetime();
 
 document.getElementById('add-form').addEventListener('submit', (e) => {
@@ -49,32 +49,49 @@ const renderCards = () => {
         const hasSecond = w.v2 !== '' && w.t2 !== '';
         
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded shadow-sm border border-gray-200';
+        card.className = 'bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden';
         
         card.innerHTML = `
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-blue-900">Скв. ${w.well}</h3>
-                <button onclick="deleteWell('${w.id}')" class="text-red-500 hover:text-red-700 text-sm">Удалить</button>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl text-gray-900">Скв. ${w.well}</h3>
+                <div class="flex gap-3">
+                    <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium">Ред.</button>
+                    <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-sm font-medium">Удалить</button>
+                </div>
             </div>
             
-            <div class="text-sm space-y-1 mb-4 text-gray-700">
-                <p>1-й замер: <span class="font-mono">${w.v1}</span> (${w.t1.replace('T', ' ')})</p>
-                ${hasSecond ? `<p>2-й замер: <span class="font-mono">${w.v2}</span> (${w.t2.replace('T', ' ')})</p>` : ''}
+            <div class="space-y-2 mb-5">
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                    <span class="text-xs text-gray-500">Замер 1</span>
+                    <div class="text-right">
+                        <span class="font-mono font-medium text-gray-800">${w.v1}</span>
+                        <span class="text-xs text-gray-400 block">${w.t1.replace('T', ' ')}</span>
+                    </div>
+                </div>
+                ${hasSecond ? `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                    <span class="text-xs text-gray-500">Замер 2</span>
+                    <div class="text-right">
+                        <span class="font-mono font-medium text-gray-800">${w.v2}</span>
+                        <span class="text-xs text-gray-400 block">${w.t2.replace('T', ' ')}</span>
+                    </div>
+                </div>` : ''}
             </div>
             
             ${hasSecond ? `
-                <div class="bg-gray-50 p-2 rounded text-center border">
-                    <span class="text-gray-500 text-xs uppercase block">Результат</span>
-                    <span class="text-xl font-bold ${result === 'Ошибка времени' ? 'text-red-500' : 'text-green-600'}">${result} ${result !== 'Ошибка времени' ? 'м³' : ''}</span>
+                <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-100">
+                    <span class="text-blue-600 text-[10px] font-bold uppercase tracking-wider block mb-1">Дебит</span>
+                    <span class="text-3xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-lg' : 'text-blue-900'}">
+                        ${result} ${result !== 'Ошибка времени' ? '<span class="text-lg text-blue-600 font-medium">м³</span>' : ''}
+                    </span>
                 </div>
-                <button onclick="editWell('${w.id}')" class="mt-3 w-full border border-gray-300 text-gray-700 p-1.5 rounded hover:bg-gray-50 text-sm">Изменить</button>
             ` : `
-                <div class="mt-2 border-t pt-2 space-y-2">
-                    <input type="number" step="any" id="v2-${w.id}" placeholder="Показание 2 (A8)" class="w-full border p-2 rounded text-sm outline-none focus:border-blue-500">
-                    <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-full border p-2 rounded text-sm outline-none focus:border-blue-500">
-                    <div class="flex gap-2">
-                        <button onclick="saveSecond('${w.id}')" class="flex-1 bg-green-600 text-white p-2 rounded hover:bg-green-700 text-sm">Рассчитать</button>
-                        <button onclick="editWell('${w.id}')" class="flex-1 border border-gray-300 p-2 rounded hover:bg-gray-50 text-sm">Изменить все</button>
+                <div class="border-t border-gray-100 pt-4 mt-2">
+                    <label class="block text-xs text-gray-500 mb-1">Внести второй замер</label>
+                    <div class="flex flex-col gap-2">
+                        <input type="number" step="any" id="v2-${w.id}" placeholder="Показание 2" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
+                        <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500">
+                        <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 font-medium transition-colors shadow-sm mt-1">Рассчитать</button>
                     </div>
                 </div>
             `}
@@ -86,7 +103,7 @@ const renderCards = () => {
 window.saveSecond = (id) => {
     const v2 = parseFloat(document.getElementById(`v2-${id}`).value);
     const t2 = document.getElementById(`t2-${id}`).value;
-    if (isNaN(v2) || !t2) return alert('Введите данные 2-го замера');
+    if (isNaN(v2) || !t2) return alert('Укажите показание и время');
     
     const index = wells.findIndex(w => w.id === id);
     wells[index].v2 = v2;
@@ -96,36 +113,63 @@ window.saveSecond = (id) => {
 };
 
 window.deleteWell = (id) => {
-    if(confirm('Удалить запись?')) {
+    if(confirm('Удалить эту запись безвозвратно?')) {
         wells = wells.filter(w => w.id !== id);
         saveWells();
         renderCards();
     }
 };
 
+// Логика модального окна
 window.editWell = (id) => {
-    const index = wells.findIndex(w => w.id === id);
-    const w = wells[index];
-    
-    const newWell = prompt('Номер скважины:', w.well);
-    if (newWell === null) return;
-    
-    const newV1 = parseFloat(prompt('Показание 1:', w.v1));
-    const newT1 = prompt('Время 1 (YYYY-MM-DDTHH:MM):', w.t1);
-    
-    wells[index].well = newWell || w.well;
-    wells[index].v1 = isNaN(newV1) ? w.v1 : newV1;
-    wells[index].t1 = newT1 || w.t1;
-    
-    if (w.v2 !== '') {
-        const newV2 = parseFloat(prompt('Показание 2:', w.v2));
-        const newT2 = prompt('Время 2 (YYYY-MM-DDTHH:MM):', w.t2);
-        wells[index].v2 = isNaN(newV2) ? w.v2 : newV2;
-        wells[index].t2 = newT2 || w.t2;
+    const w = wells.find(w => w.id === id);
+    if (!w) return;
+
+    document.getElementById('edit-id').value = w.id;
+    document.getElementById('edit-well-id').textContent = w.well;
+    document.getElementById('edit-v1').value = w.v1;
+    document.getElementById('edit-t1').value = w.t1;
+
+    const secondGroup = document.getElementById('edit-second-group');
+    if (w.v2 !== '' && w.t2 !== '') {
+        secondGroup.classList.remove('hidden');
+        document.getElementById('edit-v2').value = w.v2;
+        document.getElementById('edit-t2').value = w.t2;
+    } else {
+        secondGroup.classList.add('hidden');
     }
+
+    document.getElementById('edit-modal').classList.remove('hidden');
+};
+
+window.closeEditModal = () => {
+    document.getElementById('edit-modal').classList.add('hidden');
+};
+
+window.saveEdit = () => {
+    const id = document.getElementById('edit-id').value;
+    const index = wells.findIndex(w => w.id === id);
     
+    const newV1 = parseFloat(document.getElementById('edit-v1').value);
+    const newT1 = document.getElementById('edit-t1').value;
+    
+    if (isNaN(newV1) || !newT1) return alert('Проверьте данные первого замера');
+
+    wells[index].v1 = newV1;
+    wells[index].t1 = newT1;
+
+    if (wells[index].v2 !== '') {
+        const newV2 = parseFloat(document.getElementById('edit-v2').value);
+        const newT2 = document.getElementById('edit-t2').value;
+        if (isNaN(newV2) || !newT2) return alert('Проверьте данные второго замера');
+        
+        wells[index].v2 = newV2;
+        wells[index].t2 = newT2;
+    }
+
     saveWells();
     renderCards();
+    closeEditModal();
 };
 
 renderCards();
