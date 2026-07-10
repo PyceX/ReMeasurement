@@ -75,6 +75,7 @@ const renderCards = () => {
                     <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-semibold uppercase tracking-wide">Ред.</button>
                     <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-xs font-semibold uppercase tracking-wide">Удал.</button>
                 </div>
+            </div>
             
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
