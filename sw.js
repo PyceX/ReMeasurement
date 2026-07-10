@@ -1,4 +1,4 @@
-const CACHE_NAME = 'well-report-v1';
+const CACHE_NAME = 're-measurement-v1';
 const ASSETS = [
     './',
     './index.html',

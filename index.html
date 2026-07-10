@@ -8,51 +8,71 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <style>
-        /* Скрытие стрелок у number input для минимализма */
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans p-4 antialiased">
-    <div class="max-w-3xl mx-auto pb-10">
-        <header class="mb-8 border-b pb-4">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">WellReport</h1>
-            <p class="text-gray-500 text-sm mt-1">Журнал перезамеров</p>
+<body class="bg-gray-50 text-gray-800 font-sans p-3 sm:p-4 antialiased">
+    <div class="max-w-3xl mx-auto pb-20">
+        <!-- Шапка с кнопкой добавления (для десктопа) -->
+        <header class="mb-6 border-b pb-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">ReMeasurement</h1>
+                <p class="text-gray-500 text-xs mt-1">Журнал перезамеров</p>
+            </div>
+            <button onclick="openAddModal()" class="hidden sm:block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm text-sm">
+                + Добавить
+            </button>
         </header>
 
-        <!-- Форма добавления -->
-        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8">
-            <h2 class="text-sm uppercase tracking-wide text-gray-500 font-semibold mb-4">Добавить скважину</h2>
-            <form id="add-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Номер скважины</label>
-                    <input type="text" id="well-id" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Показание 1 (A7)</label>
-                    <input type="number" step="any" id="val-1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Время</label>
-                    <input type="datetime-local" id="time-1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-                </div>
-                <button type="submit" class="md:col-span-3 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm">
-                    Создать запись
-                </button>
-            </form>
-        </section>
-
         <!-- Контейнер карточек -->
-        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"></div>
+    </div>
+
+    <!-- Плавающая кнопка добавления (FAB - для мобильных устройств) -->
+    <button onclick="openAddModal()" class="sm:hidden fixed bottom-6 right-6 bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-colors z-40">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- Модальное окно добавления -->
+    <div id="add-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold text-gray-900">Добавить скважину</h3>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+            <form id="add-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Номер скважины</label>
+                    <input type="text" id="well-id" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Показание 1 (A7)</label>
+                        <input type="number" step="any" id="val-1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Время</label>
+                        <input type="datetime-local" id="time-1" required class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm">
+                    </div>
+                </div>
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeAddModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors text-sm">Отмена</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm text-sm">Добавить</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Модальное окно редактирования -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-gray-900">Скв. <span id="edit-well-id" class="text-blue-600"></span></h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+                <h3 class="text-lg font-bold text-gray-900">Скв. <span id="edit-well-id" class="text-blue-600"></span></h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
             </div>
             
             <input type="hidden" id="edit-id">
@@ -61,29 +81,29 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Показание 1</label>
-                        <input type="number" step="any" id="edit-v1" class="w-full border border-gray-200 p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                        <input type="number" step="any" id="edit-v1" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 font-mono">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Время 1</label>
-                        <input type="datetime-local" id="edit-t1" class="w-full border border-gray-200 p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="datetime-local" id="edit-t1" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                 </div>
                 
                 <div id="edit-second-group" class="grid grid-cols-2 gap-4 hidden pt-4 border-t border-gray-100">
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Показание 2</label>
-                        <input type="number" step="any" id="edit-v2" class="w-full border border-gray-200 p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                        <input type="number" step="any" id="edit-v2" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 font-mono">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Время 2</label>
-                        <input type="datetime-local" id="edit-t2" class="w-full border border-gray-200 p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="datetime-local" id="edit-t2" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                 </div>
             </div>
             
-            <div class="mt-8 flex gap-3">
-                <button onclick="closeEditModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">Отмена</button>
-                <button onclick="saveEdit()" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm">Сохранить</button>
+            <div class="mt-6 flex gap-3">
+                <button onclick="closeEditModal()" class="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors text-sm">Отмена</button>
+                <button onclick="saveEdit()" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm text-sm">Сохранить</button>
             </div>
         </div>
     </div>

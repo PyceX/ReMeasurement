@@ -16,12 +16,19 @@ const calculateVolume = (v1, t1, v2, t2) => {
     
     if (minutes <= 0) return 'Ошибка времени';
     
-    // Формула с округлением
     const result = (1440 / minutes) * (v2 - v1) / 1000;
     return Math.round(result); 
 };
 
-document.getElementById('time-1').value = getLocalDatetime();
+// Управление модальным окном добавления
+window.openAddModal = () => {
+    document.getElementById('time-1').value = getLocalDatetime();
+    document.getElementById('add-modal').classList.remove('hidden');
+};
+
+window.closeAddModal = () => {
+    document.getElementById('add-modal').classList.add('hidden');
+};
 
 document.getElementById('add-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -37,7 +44,7 @@ document.getElementById('add-form').addEventListener('submit', (e) => {
     saveWells();
     renderCards();
     e.target.reset();
-    document.getElementById('time-1').value = getLocalDatetime();
+    closeAddModal(); // Закрытие после сохранения
 });
 
 const renderCards = () => {
@@ -49,49 +56,51 @@ const renderCards = () => {
         const hasSecond = w.v2 !== '' && w.t2 !== '';
         
         const card = document.createElement('div');
-        card.className = 'bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden';
+        // Обновлен дизайн карточек (p-4, уменьшены отступы, сетка для показаний)
+        card.className = 'bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden flex flex-col gap-3';
         
         card.innerHTML = `
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-xl text-gray-900">Скв. ${w.well}</h3>
-                <div class="flex gap-3">
-                    <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium">Ред.</button>
-                    <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-sm font-medium">Удалить</button>
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-900 tracking-tight">Скв. ${w.well}</h3>
+                <div class="flex gap-2">
+                    <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-semibold uppercase tracking-wide">Ред.</button>
+                    <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-xs font-semibold uppercase tracking-wide">Удал.</button>
                 </div>
             </div>
             
-            <div class="space-y-2 mb-5">
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
-                    <span class="text-xs text-gray-500">Замер 1</span>
-                    <div class="text-right">
-                        <span class="font-mono font-medium text-gray-800">${w.v1}</span>
-                        <span class="text-xs text-gray-400 block">${w.t1.replace('T', ' ')}</span>
-                    </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wide block mb-0.5">Замер 1</span>
+                    <span class="font-mono font-bold text-gray-800 text-sm leading-none block">${w.v1}</span>
+                    <span class="text-[10px] text-gray-500 mt-1 block">${w.t1.replace('T', ' ')}</span>
                 </div>
                 ${hasSecond ? `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
-                    <span class="text-xs text-gray-500">Замер 2</span>
-                    <div class="text-right">
-                        <span class="font-mono font-medium text-gray-800">${w.v2}</span>
-                        <span class="text-xs text-gray-400 block">${w.t2.replace('T', ' ')}</span>
-                    </div>
-                </div>` : ''}
+                <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wide block mb-0.5">Замер 2</span>
+                    <span class="font-mono font-bold text-gray-800 text-sm leading-none block">${w.v2}</span>
+                    <span class="text-[10px] text-gray-500 mt-1 block">${w.t2.replace('T', ' ')}</span>
+                </div>` : `
+                <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 border-dashed flex items-center justify-center">
+                    <span class="text-[10px] text-gray-400 text-center">Нет<br>данных</span>
+                </div>
+                `}
             </div>
             
             ${hasSecond ? `
-                <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-100">
-                    <span class="text-blue-600 text-[10px] font-bold uppercase tracking-wider block mb-1">Дебит</span>
-                    <span class="text-3xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-lg' : 'text-blue-900'}">
-                        ${result} ${result !== 'Ошибка времени' ? '<span class="text-lg text-blue-600 font-medium">м³</span>' : ''}
+                <div class="bg-blue-50 py-2 px-3 rounded-lg flex justify-between items-center border border-blue-100 mt-auto">
+                    <span class="text-blue-600 text-xs font-bold uppercase tracking-wide">Дебит</span>
+                    <span class="text-2xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-sm' : 'text-blue-900'}">
+                        ${result} ${result !== 'Ошибка времени' ? '<span class="text-sm text-blue-600 font-medium ml-1">м³</span>' : ''}
                     </span>
                 </div>
             ` : `
-                <div class="border-t border-gray-100 pt-4 mt-2">
-                    <label class="block text-xs text-gray-500 mb-1">Внести второй замер</label>
+                <div class="border-t border-gray-100 pt-3 mt-auto">
                     <div class="flex flex-col gap-2">
-                        <input type="number" step="any" id="v2-${w.id}" placeholder="Показание 2" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
-                        <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500">
-                        <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 font-medium transition-colors shadow-sm mt-1">Рассчитать</button>
+                        <div class="flex gap-2">
+                            <input type="number" step="any" id="v2-${w.id}" placeholder="Показ. 2" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
+                            <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-1/2 border border-gray-200 bg-gray-50 p-2 rounded-lg text-xs outline-none focus:bg-white focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 text-sm font-medium transition-colors shadow-sm">Рассчитать</button>
                     </div>
                 </div>
             `}
@@ -120,7 +129,6 @@ window.deleteWell = (id) => {
     }
 };
 
-// Логика модального окна
 window.editWell = (id) => {
     const w = wells.find(w => w.id === id);
     if (!w) return;
