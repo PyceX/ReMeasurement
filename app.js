@@ -241,19 +241,15 @@ window.openCloneModal = (id) => {
 
     updateCloneValue();
 
-    const t1 = document.getElementById('clone-t1');
-    t1.value = getLocalDatetime();
-    t1.classList.add('auto-time');
-    t1.addEventListener('focus', () => t1.classList.remove('auto-time'));
-    t1.addEventListener('input', () => t1.classList.remove('auto-time'));
-
     document.getElementById('clone-modal').classList.remove('hidden');
 };
 
 window.updateCloneValue = () => {
     if (!cloneSourceWell) return;
     const selected = document.querySelector('input[name="clone-source"]:checked').value;
-    document.getElementById('clone-v1').value = selected === '2' ? cloneSourceWell.v2 : cloneSourceWell.v1;
+    const isSecond = selected === '2';
+    document.getElementById('clone-v1').value = isSecond ? cloneSourceWell.v2 : cloneSourceWell.v1;
+    document.getElementById('clone-t1').value = isSecond ? cloneSourceWell.t2 : cloneSourceWell.t1;
 };
 
 window.closeCloneModal = () => {
