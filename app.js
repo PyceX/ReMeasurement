@@ -71,11 +71,10 @@ const renderCards = () => {
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg text-gray-900 tracking-tight">Скв. ${w.well}</h3>
                 <div class="flex gap-2">
-                    <button onclick="openCloneModal('${w.id}')" class="text-green-600 hover:text-green-700 text-xs font-semibold uppercase tracking-wide">Клон</button>
+                    <button onclick="openCloneModal('${w.id}')" class="text-green-500 hover:text-green-700 text-xs font-semibold uppercase tracking-wide">Клон.</button>
                     <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-xs font-semibold uppercase tracking-wide">Ред.</button>
                     <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-xs font-semibold uppercase tracking-wide">Удал.</button>
                 </div>
-            </div>
             
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
@@ -215,70 +214,62 @@ window.saveEdit = () => {
     closeEditModal();
 };
 
-// Клонирование скважины
-let cloneSourceWell = null;
-
+// --- ЛОГИКА КЛОНИРОВАНИЯ ---
 window.openCloneModal = (id) => {
     const w = wells.find(w => w.id === id);
     if (!w) return;
-    cloneSourceWell = w;
 
-    document.getElementById('clone-well-id').textContent = w.well;
-    document.getElementById('clone-well-number').value = w.well;
+    document.getElementById('clone-source-id').value = w.id;
+    document.getElementById('clone-well-name').textContent = w.well;
+    document.getElementById('clone-well-id').value = w.well;
 
-    const hasSecond = w.v2 !== '' && w.t2 !== '';
-    const radio1 = document.querySelector('input[name="clone-source"][value="1"]');
-    const radio2 = document.getElementById('clone-source-2');
+    // Предзаполнение данных первого замера
+    document.getElementById('clone-v1-text').textContent = w.v1;
+    document.getElementById('clone-t1-text').textContent = w.t1.replace('T', ' ');
 
-    radio2.disabled = !hasSecond;
-    radio2.parentElement.classList.toggle('opacity-40', !hasSecond);
-
-    if (hasSecond) {
-        radio2.checked = true;
+    // Проверка и предзаполнение второго замера
+    const option2 = document.getElementById('clone-option-2');
+    if (w.v2 !== '' && w.t2 !== '') {
+        option2.style.display = 'flex';
+        document.getElementById('clone-v2-text').textContent = w.v2;
+        document.getElementById('clone-t2-text').textContent = w.t2.replace('T', ' ');
     } else {
-        radio1.checked = true;
+        option2.style.display = 'none';
+        document.querySelector('input[name="clone-source"][value="1"]').checked = true; // Сброс на 1, если 2 нет
     }
-
-    updateCloneValue();
 
     document.getElementById('clone-modal').classList.remove('hidden');
 };
 
-window.updateCloneValue = () => {
-    if (!cloneSourceWell) return;
-    const selected = document.querySelector('input[name="clone-source"]:checked').value;
-    const isSecond = selected === '2';
-    document.getElementById('clone-v1').value = isSecond ? cloneSourceWell.v2 : cloneSourceWell.v1;
-    document.getElementById('clone-t1').value = isSecond ? cloneSourceWell.t2 : cloneSourceWell.t1;
-};
-
 window.closeCloneModal = () => {
     document.getElementById('clone-modal').classList.add('hidden');
-    cloneSourceWell = null;
 };
 
 document.getElementById('clone-form').addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    const sourceId = document.getElementById('clone-source-id').value;
+    const sourceWell = wells.find(w => w.id === sourceId);
+    if (!sourceWell) return;
 
-    const wellNumber = document.getElementById('clone-well-number').value.trim();
-    const v1 = parseFloat(document.getElementById('clone-v1').value);
-    const t1 = document.getElementById('clone-t1').value;
-
-    if (!wellNumber) return alert('Укажите номер скважины');
-    if (isNaN(v1) || !t1) return alert('Проверьте показание и время');
+    const useSecond = document.querySelector('input[name="clone-source"]:checked').value === '2';
+    
+    // Берем оригинальные значения объема и времени
+    const newV1 = useSecond ? sourceWell.v2 : sourceWell.v1;
+    const newT1 = useSecond ? sourceWell.t2 : sourceWell.t1; 
 
     const newWell = {
-        id: (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()),
-        well: wellNumber,
-        v1: v1,
-        t1: t1,
+        id: Date.now().toString(),
+        well: document.getElementById('clone-well-id').value,
+        v1: parseFloat(newV1),
+        t1: newT1, // Прямое копирование времени без текущего смещения
         v2: '',
         t2: ''
     };
+    
     wells.unshift(newWell);
     saveWells();
     renderCards();
-    e.target.reset();
     closeCloneModal();
 });
 
