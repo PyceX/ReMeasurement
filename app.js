@@ -43,56 +43,36 @@ document.getElementById('add-form').addEventListener('submit', (e) => {
 const renderCards = () => {
     const container = document.getElementById('cards-container');
     container.innerHTML = '';
-
     wells.forEach(w => {
         const result = calculateVolume(w.v1, w.t1, w.v2, w.t2);
-        const hasSecond = w.v2 !== '' && w.t2 !== '';
+        const hasSecond = w.v2 !== '';
         
         const card = document.createElement('div');
-        card.className = 'bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden';
+        card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3';
         
         card.innerHTML = `
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-xl text-gray-900">Скв. ${w.well}</h3>
-                <div class="flex gap-3">
-                    <button onclick="editWell('${w.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium">Ред.</button>
-                    <button onclick="deleteWell('${w.id}')" class="text-red-400 hover:text-red-600 text-sm font-medium">Удалить</button>
+            <div class="flex justify-between items-center border-b pb-2">
+                <span class="font-bold text-slate-700">№ ${w.well}</span>
+                <div class="flex gap-2">
+                    <button onclick="editWell('${w.id}')" class="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-800">Ред</button>
+                    <button onclick="deleteWell('${w.id}')" class="text-[10px] uppercase font-bold text-red-400 hover:text-red-700">Удал</button>
                 </div>
             </div>
-            
-            <div class="space-y-2 mb-5">
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
-                    <span class="text-xs text-gray-500">Замер 1</span>
-                    <div class="text-right">
-                        <span class="font-mono font-medium text-gray-800">${w.v1}</span>
-                        <span class="text-xs text-gray-400 block">${w.t1.replace('T', ' ')}</span>
-                    </div>
-                </div>
-                ${hasSecond ? `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
-                    <span class="text-xs text-gray-500">Замер 2</span>
-                    <div class="text-right">
-                        <span class="font-mono font-medium text-gray-800">${w.v2}</span>
-                        <span class="text-xs text-gray-400 block">${w.t2.replace('T', ' ')}</span>
-                    </div>
-                </div>` : ''}
+            <div class="grid grid-cols-2 text-[11px] text-slate-500">
+                <span>Замер 1: ${w.v1}</span>
+                <span>${w.t1.replace('T', ' ')}</span>
+                ${hasSecond ? `<span>Замер 2: ${w.v2}</span><span>${w.t2.replace('T', ' ')}</span>` : ''}
             </div>
-            
             ${hasSecond ? `
-                <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-100">
-                    <span class="text-blue-600 text-[10px] font-bold uppercase tracking-wider block mb-1">Дебит</span>
-                    <span class="text-3xl font-extrabold ${result === 'Ошибка времени' ? 'text-red-500 text-lg' : 'text-blue-900'}">
-                        ${result} ${result !== 'Ошибка времени' ? '<span class="text-lg text-blue-600 font-medium">м³</span>' : ''}
-                    </span>
+                <div class="bg-slate-800 text-white p-3 rounded-lg text-center">
+                    <span class="text-xs opacity-70 block mb-1">ДЕБИТ (М³)</span>
+                    <span class="text-2xl font-black">${result}</span>
                 </div>
             ` : `
-                <div class="border-t border-gray-100 pt-4 mt-2">
-                    <label class="block text-xs text-gray-500 mb-1">Внести второй замер</label>
-                    <div class="flex flex-col gap-2">
-                        <input type="number" step="any" id="v2-${w.id}" placeholder="Показание 2" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500 font-mono">
-                        <input type="datetime-local" id="t2-${w.id}" value="${getLocalDatetime()}" class="w-full border border-gray-200 bg-gray-50 p-2.5 rounded-lg text-sm outline-none focus:bg-white focus:ring-2 focus:ring-green-500">
-                        <button onclick="saveSecond('${w.id}')" class="w-full bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 font-medium transition-colors shadow-sm mt-1">Рассчитать</button>
-                    </div>
+                <div class="grid grid-cols-2 gap-2 mt-1">
+                    <input type="number" id="v2-${w.id}" placeholder="Второе показание" class="col-span-2 border p-2 rounded text-sm">
+                    <input type="datetime-local" id="t2-${w.id}" class="col-span-2 border p-2 rounded text-sm">
+                    <button onclick="saveSecond('${w.id}')" class="col-span-2 bg-emerald-600 text-white p-2 rounded text-sm font-bold">Рассчитать</button>
                 </div>
             `}
         `;
