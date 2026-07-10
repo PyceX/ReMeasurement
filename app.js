@@ -48,31 +48,30 @@ const renderCards = () => {
         const hasSecond = w.v2 !== '';
         
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3';
+        card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm';
         
         card.innerHTML = `
-            <div class="flex justify-between items-center border-b pb-2">
-                <span class="font-bold text-slate-700">№ ${w.well}</span>
-                <div class="flex gap-2">
-                    <button onclick="editWell('${w.id}')" class="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-800">Ред</button>
-                    <button onclick="deleteWell('${w.id}')" class="text-[10px] uppercase font-bold text-red-400 hover:text-red-700">Удал</button>
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+                <span class="font-bold text-lg text-slate-800">№ ${w.well}</span>
+                <div class="flex gap-3">
+                    <button onclick="editWell('${w.id}')" class="text-xs text-slate-400 hover:text-slate-800 font-bold uppercase">Ред</button>
+                    <button onclick="deleteWell('${w.id}')" class="text-xs text-red-400 hover:text-red-700 font-bold uppercase">Удал</button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 text-[11px] text-slate-500">
-                <span>Замер 1: ${w.v1}</span>
-                <span>${w.t1.replace('T', ' ')}</span>
-                ${hasSecond ? `<span>Замер 2: ${w.v2}</span><span>${w.t2.replace('T', ' ')}</span>` : ''}
+            <div class="text-sm text-slate-600 mb-4 space-y-1">
+                <p>Замер 1: <span class="font-mono font-medium">${w.v1}</span> <span class="text-slate-400 text-xs">(${w.t1.replace('T', ' ')})</span></p>
+                ${hasSecond ? `<p>Замер 2: <span class="font-mono font-medium">${w.v2}</span> <span class="text-slate-400 text-xs">(${w.t2.replace('T', ' ')})</span></p>` : ''}
             </div>
             ${hasSecond ? `
-                <div class="bg-slate-800 text-white p-3 rounded-lg text-center">
-                    <span class="text-xs opacity-70 block mb-1">ДЕБИТ (М³)</span>
-                    <span class="text-2xl font-black">${result}</span>
+                <div class="bg-slate-800 text-white p-4 rounded-xl text-center">
+                    <span class="text-[10px] tracking-widest opacity-60 uppercase block mb-1">Расход м³</span>
+                    <span class="text-3xl font-black">${result}</span>
                 </div>
             ` : `
-                <div class="grid grid-cols-2 gap-2 mt-1">
-                    <input type="number" id="v2-${w.id}" placeholder="Второе показание" class="col-span-2 border p-2 rounded text-sm">
-                    <input type="datetime-local" id="t2-${w.id}" class="col-span-2 border p-2 rounded text-sm">
-                    <button onclick="saveSecond('${w.id}')" class="col-span-2 bg-emerald-600 text-white p-2 rounded text-sm font-bold">Рассчитать</button>
+                <div class="space-y-2 pt-2 border-t">
+                    <input type="number" id="v2-${w.id}" placeholder="Показание 2" class="w-full border p-3 rounded-lg text-sm">
+                    <input type="datetime-local" id="t2-${w.id}" class="w-full border p-3 rounded-lg text-sm">
+                    <button onclick="saveSecond('${w.id}')" class="w-full bg-emerald-600 text-white p-3 rounded-lg text-sm font-bold">Рассчитать</button>
                 </div>
             `}
         `;
