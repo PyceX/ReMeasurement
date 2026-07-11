@@ -6,6 +6,18 @@ const getLocalDatetime = () => {
     return now.toISOString().slice(0, 16);
 };
 
+// Функция для форматирования даты и времени в формат hh:mm, dd-mm-yy
+const formatDateTime = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mon = String(date.getMonth() + 1).padStart(2, '0');
+    const yy = String(date.getFullYear()).slice(-2);
+    return `${hh}:${mm}, ${dd}-${mon}-${yy}`;
+};
+
 const saveWells = () => localStorage.setItem('wells', JSON.stringify(wells));
 
 const calculateVolume = (v1, t1, v2, t2) => {
@@ -81,13 +93,13 @@ const renderCards = () => {
                 <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
                     <span class="text-[10px] text-gray-400 uppercase tracking-wide block mb-0.5">Замер 1</span>
                     <span class="font-mono font-bold text-gray-800 text-sm leading-none block">${w.v1}</span>
-                    <span class="text-[10px] text-gray-500 mt-1 block">${w.t1.replace('T', ' ')}</span>
+                    <span class="text-[10px] text-gray-500 mt-1 block">${formatDateTime(w.t1)}</span>
                 </div>
                 ${hasSecond ? `
                 <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
                     <span class="text-[10px] text-gray-400 uppercase tracking-wide block mb-0.5">Замер 2</span>
                     <span class="font-mono font-bold text-gray-800 text-sm leading-none block">${w.v2}</span>
-                    <span class="text-[10px] text-gray-500 mt-1 block">${w.t2.replace('T', ' ')}</span>
+                    <span class="text-[10px] text-gray-500 mt-1 block">${formatDateTime(w.t2)}</span>
                 </div>` : `
                 <div class="bg-gray-50 p-2 rounded-lg border border-gray-100 border-dashed flex items-center justify-center">
                     <span class="text-[10px] text-gray-400 text-center">Нет<br>данных</span>
@@ -132,8 +144,8 @@ window.copyResult = (id, btnElement) => {
     const result = calculateVolume(w.v1, w.t1, w.v2, w.t2);
     if (result === 'Ошибка времени' || result === null) return;
 
-    const formatTime = (t) => t.replace('T', ' ');
-    const textToCopy = `${w.v1} (${formatTime(w.t1)}) - ${w.v2} (${formatTime(w.t2)}) = ${result} м³`;
+    // Применяем новое форматирование к копируемому тексту
+    const textToCopy = `${w.well}\n${w.v1} (${formatDateTime(w.t1)}) - ${w.v2} (${formatDateTime(w.t2)}) = ${result} м³`;
 
     navigator.clipboard.writeText(textToCopy).then(() => {
         const originalHTML = btnElement.innerHTML;
@@ -224,16 +236,16 @@ window.openCloneModal = (id) => {
     document.getElementById('clone-well-name').textContent = w.well;
     document.getElementById('clone-well-id').value = w.well;
 
-    // Предзаполнение данных первого замера
+    // Предзаполнение данных первого замера с новым форматированием
     document.getElementById('clone-v1-text').textContent = w.v1;
-    document.getElementById('clone-t1-text').textContent = w.t1.replace('T', ' ');
+    document.getElementById('clone-t1-text').textContent = formatDateTime(w.t1);
 
-    // Проверка и предзаполнение второго замера
+    // Проверка и предзаполнение второго замера с новым форматированием
     const option2 = document.getElementById('clone-option-2');
     if (w.v2 !== '' && w.t2 !== '') {
         option2.style.display = 'flex';
         document.getElementById('clone-v2-text').textContent = w.v2;
-        document.getElementById('clone-t2-text').textContent = w.t2.replace('T', ' ');
+        document.getElementById('clone-t2-text').textContent = formatDateTime(w.t2);
     } else {
         option2.style.display = 'none';
         document.querySelector('input[name="clone-source"][value="1"]').checked = true; // Сброс на 1, если 2 нет
